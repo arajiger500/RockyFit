@@ -1,5 +1,5 @@
 import {
-  dateKey, fromKey, shiftDays, mondayOf, workoutFor, exercisesFor, nextWorkout
+  dateKey, fromKey, shiftDays, mondayOf, workoutFor, exercisesFor, nextWorkout, isStrength
 } from "./plan.js";
 
 const $ = (id) => document.getElementById(id);
@@ -75,7 +75,7 @@ function renderWeek() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "day-tile" + (selected ? " selected" : "") + (key === today ? " today" : "");
-    button.setAttribute("aria-label", formatLong.format(day) + ": " + (workout ? "Workout " + workout : "rest day"));
+    button.setAttribute("aria-label", formatLong.format(day) + ": " + (isStrength(workout) ? "Workout " + workout : workout === "MOVE" ? "optional easy movement" : "rest day"));
     if (selected) button.setAttribute("aria-current", "date");
     const name = document.createElement("span");
     name.className = "day-name";
@@ -85,7 +85,7 @@ function renderWeek() {
     number.textContent = String(day.getDate());
     const status = document.createElement("span");
     status.className = "day-status" + (workout ? "" : " rest");
-    status.textContent = workout ? "LIFT " + workout : "REST";
+    status.textContent = workout === "MOVE" ? "MOVE" : workout ? "LIFT " + workout : "REST";
     button.append(name, number, status);
     button.addEventListener("click", () => setChosen(day));
     grid.appendChild(button);
@@ -97,16 +97,19 @@ function renderWorkout() {
   $("selected-date").textContent = formatLong.format(chosen).toUpperCase();
   const hero = $("workout-hero");
   hero.replaceChildren();
-  hero.classList.toggle("rest-hero", !session);
+  hero.classList.toggle("rest-hero", !isStrength(session));
+  document.querySelector(".duration").textContent = isStrength(session) ? "◷ 30–45 MIN" : session === "MOVE" ? "◷ 10–30 MIN (OPTIONAL)" : "RECOVERY";
   const eyebrow = document.createElement("span");
   eyebrow.className = "hero-eyebrow";
-  eyebrow.textContent = session ? "FULL BODY  /  " + session : "RECOVERY  /  REST DAY";
+  eyebrow.textContent = isStrength(session) ? "DORM FULL BODY  /  " + session : session === "MOVE" ? "OPTIONAL  /  ACTIVE RECOVERY" : "RECOVERY  /  REST DAY";
   const headline = document.createElement("h2");
-  headline.textContent = session ? "WORKOUT " + session : "REST & RECHARGE";
+  headline.textContent = isStrength(session) ? "WORKOUT " + session : session === "MOVE" ? "MOVE A LITTLE" : "REST & RECHARGE";
   const description = document.createElement("p");
-  description.textContent = session
-    ? "5–8 minute warm-up · 2 working sets per exercise"
-    : "Take a walk, stretch gently, and come back ready for your next session.";
+  description.textContent = isStrength(session)
+    ? "5–8 min warm-up · 2 sets each · no bench or gym machines"
+    : session === "MOVE"
+      ? "Light walking and gentle mobility only if you feel like it."
+      : "Rest today. Gentle walking is fine, but nothing is mandatory.";
   hero.append(eyebrow, headline, description);
 
   const detail = $("workout-detail");
@@ -131,7 +134,7 @@ function renderWorkout() {
     title.textContent = name;
     const description = document.createElement("span");
     description.className = "exercise-meta";
-    description.textContent = reps + " · " + rest + " rest";
+    description.textContent = reps + (session === "MOVE" ? " · " + rest : " · " + rest + " rest");
     copy.append(title, description);
     const number = document.createElement("span");
     number.className = "exercise-index";
@@ -151,7 +154,7 @@ function renderSidebar() {
   const next = nextWorkout(chosen, false);
   const session = workoutFor(next);
   $("next-title").textContent = "Workout " + session;
-  $("next-description").textContent = formatShort.format(next) + " · A focused full-body session at Rocky.";
+  $("next-description").textContent = formatShort.format(next) + " · Your short, equipment-light dorm workout.";
 }
 
 function render() {
@@ -189,7 +192,7 @@ function makeIcs() {
   let count = 0;
   for (let day = today; day < end; day = shiftDays(day, 1)) {
     const session = workoutFor(day);
-    if (!session) continue;
+    if (!isStrength(session)) continue;
     const start = calendarTimestamp(day, hour, minute);
       // Use date arithmetic so a 23:xx workout ends on the following calendar day.
     const endDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour + 1, minute);
@@ -201,7 +204,7 @@ function makeIcs() {
       "DTSTART:" + start,
       "DTEND:" + dtend,
       "SUMMARY:RockyFit - Full Body " + session,
-      "DESCRIPTION:45-55 minute workout. Open RockyFit for exercises. Start light and focus on form.",
+      "DESCRIPTION:30-45 minute dorm workout. No bench required. Start light and focus on form.",
       "BEGIN:VALARM",
       "ACTION:DISPLAY",
       "DESCRIPTION:RockyFit workout begins in 15 minutes",
@@ -269,7 +272,7 @@ async function reminderTick() {
       typeof Notification === "undefined" || Notification.permission !== "granted") return;
   const now = new Date();
   const session = workoutFor(now);
-  if (!session) return;
+  if (!isStrength(session)) return;
   const time = store.get("reminder-time", "17:00");
   const actual = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
   if (time !== actual || store.get("notified-" + dateKey(now)) === "1") return;
