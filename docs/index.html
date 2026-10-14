@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#101419">
+  <meta name="description" content="RockyFit — your simple offline workout schedule. Train three days a week, anywhere.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="RockyFit">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>RockyFit · Train smart</title>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="RockyFit home">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40" width="30" height="30"><path stroke="currentColor" stroke-width="3.6" stroke-linecap="round" fill="none" d="M3 15v10M8 12v16M12 18h16M28 12v16M33 15v10"/></svg></span>
+        <span>ROCKY<span class="brand-accent">FIT</span></span>
+      </a>
+      <div class="top-actions">
+        <span class="offline-tag" id="connection-status" aria-live="polite">AVAILABLE OFFLINE</span>
+        <button id="install-button" class="button button-small button-accent" hidden>Install app</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <p class="eyebrow"><span class="small-circle"></span> MADE FOR CONSISTENCY</p>
+        <h1>One hour.<br><span>Stronger every week.</span></h1>
+        <p class="subtitle">Three focused sessions. No accounts, no noise, no excuses.</p>
+      </section>
+
+      <section class="week-panel panel" aria-label="Weekly workout schedule">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">YOUR TRAINING WEEK</p>
+            <h2 id="week-range">This week</h2>
+          </div>
+          <div class="navigation-controls">
+            <button id="previous-week" class="icon-button" aria-label="Previous week">‹</button>
+            <button id="today-button" class="button button-ghost">Today</button>
+            <button id="next-week" class="icon-button" aria-label="Next week">›</button>
+          </div>
+        </div>
+        <div class="week-grid" id="week-grid" aria-label="Choose a date"></div>
+      </section>
+
+      <div class="dashboard">
+        <section class="primary">
+          <div class="section-heading">
+            <p class="eyebrow" id="selected-date">TODAY</p>
+            <span class="duration"><span aria-hidden="true">◷</span> 45–55 MIN</span>
+          </div>
+          <article class="workout-hero" id="workout-hero" aria-live="polite"></article>
+
+          <div id="workout-detail">
+            <div class="exercise-heading">
+              <h2>Exercises</h2>
+              <span id="progress-label" class="progress-number">0 / 6 done</span>
+            </div>
+            <div class="progress-track" role="progressbar" aria-label="Exercise progress" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0" id="progress-bar"><div id="progress-fill"></div></div>
+            <div class="exercise-list" id="exercise-list"></div>
+            <p class="coach-note">Start with weights you can control. Keep 2–3 good repetitions in reserve and ask a trainer to check your form.</p>
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <section class="panel side-panel">
+            <p class="eyebrow">COMING UP</p>
+            <h2 id="next-title">Next session</h2>
+            <p class="sidebar-description" id="next-description"></p>
+          </section>
+
+          <section class="panel side-panel">
+            <p class="eyebrow">YOUR ROUTINE</p>
+            <div class="routine-row"><span>Training days</span><strong>Mon · Thu · Sat</strong></div>
+            <div class="routine-row"><span>Plan</span><strong>Full body A / B</strong></div>
+            <div class="routine-row"><span>Duration</span><strong>≤ 60 minutes</strong></div>
+            <div class="routine-row"><span>Data storage</span><strong>On this device</strong></div>
+          </section>
+
+          <section class="panel side-panel" id="reminders">
+            <p class="eyebrow">REMINDERS</p>
+            <h2>Make it a habit.</h2>
+            <label for="reminder-time" class="field-label">Your preferred workout time</label>
+            <input id="reminder-time" type="time" value="17:00" class="time-input">
+            <button class="button button-accent button-wide" id="calendar-button">Add workouts to calendar</button>
+            <p class="small-help">Exports the next 12 weeks as calendar events with 15-minute reminders. Import them into your calendar for notifications even when this app is closed.</p>
+            <button class="button button-secondary button-wide" id="notify-button">Enable in-app notifications</button>
+            <p class="small-help" id="notify-help">In-app alerts are only reliable while RockyFit is open. Browser support varies by device.</p>
+          </section>
+
+          <section class="panel side-panel">
+            <p class="eyebrow">GET THE APP</p>
+            <h2>Works offline.</h2>
+            <p class="sidebar-description">Open once online, then use your workouts without mobile data or Wi-Fi. Install from your browser's menu or Add to Home Screen.</p>
+            <button class="button button-secondary button-wide" id="install-help">Installation instructions</button>
+          </section>
+        </aside>
+      </div>
+    </main>
+    <footer>ROCKYFIT <span>·</span> BUILT FOR THE LONG GAME <span>·</span> NO TRACKERS</footer>
+  </div>
+
+  <dialog id="info-dialog" aria-labelledby="info-title">
+    <div class="dialog-inner">
+      <button id="close-dialog" class="close-dialog" aria-label="Close">×</button>
+      <p class="eyebrow">INSTALL ON YOUR DEVICE</p>
+      <h2 id="info-title">Your pocket gym companion</h2>
+      <p><strong>iPhone / iPad:</strong> Open in Safari, tap Share, then Add to Home Screen.</p>
+      <p><strong>Android:</strong> Open in Chrome, tap ⋮, then Install app or Add to Home screen.</p>
+      <p><strong>Desktop:</strong> Use the browser Install button (Chrome or Edge) or simply bookmark this page.</p>
+      <p>After the first online visit, the app works offline. Checklists are stored separately on each device and do not sync automatically.</p>
+      <button id="dialog-ok" class="button button-accent button-wide">Got it</button>
+    </div>
+  </dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
