@@ -21,6 +21,7 @@ const formatMonth = new Intl.DateTimeFormat("en", {month:"short",day:"numeric"})
 let chosen = fromKey(dateKey(new Date()));
 let toastTimer = null;
 let deferredInstall = null;
+let lastSeenDay = dateKey(new Date());
 
 function toast(message) {
   const element = $("toast");
@@ -130,7 +131,7 @@ function renderWorkout() {
     title.textContent = name;
     const description = document.createElement("span");
     description.className = "exercise-meta";
-    description.textContent = reps + " reps · " + rest + " rest";
+    description.textContent = reps + " · " + rest + " rest";
     copy.append(title, description);
     const number = document.createElement("span");
     number.className = "exercise-index";
@@ -190,8 +191,7 @@ function makeIcs() {
     const session = workoutFor(day);
     if (!session) continue;
     const start = calendarTimestamp(day, hour, minute);
-    const finish = calendarTimestamp(day, Math.min(hour + 1, 23), minute);
-    // Use date arithmetic so a 23:xx workout ends on the following calendar day.
+      // Use date arithmetic so a 23:xx workout ends on the following calendar day.
     const endDate = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour + 1, minute);
     const dtend = calendarTimestamp(endDate, endDate.getHours(), endDate.getMinutes());
     lines.push(
@@ -259,10 +259,11 @@ async function toggleNotifications() {
 
 async function reminderTick() {
   const actualDate = dateKey(new Date());
-  if (actualDate !== dateKey(chosen) && store.get("last-rendered-day") !== actualDate) {
-    store.set("last-rendered-day", actualDate);
-    // Keep manually browsed dates unchanged; refresh live 'today' when relevant.
-    renderWeek();
+  if (actualDate !== lastSeenDay) {
+    const wasViewingToday = dateKey(chosen) === lastSeenDay;
+    lastSeenDay = actualDate;
+    if (wasViewingToday) setChosen(new Date());
+    else renderWeek();
   }
   if (store.get("notification-enabled") !== "1" ||
       typeof Notification === "undefined" || Notification.permission !== "granted") return;
@@ -326,10 +327,7 @@ $("dialog-ok").addEventListener("click", () => $("info-dialog").close());
 window.addEventListener("online", updateOnlineLabel);
 window.addEventListener("offline", updateOnlineLabel);
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) {
-    if (dateKey(chosen) === store.get("last-rendered-day")) setChosen(new Date());
-    reminderTick();
-  }
+  if (!document.hidden) reminderTick();
 });
 if ("serviceWorker" in navigator && location.protocol === "https:") {
   window.addEventListener("load", () => {
@@ -342,6 +340,5 @@ setupInstall();
 render();
 updateOnlineLabel();
 updateNotifyButton();
-store.set("last-rendered-day", dateKey(new Date()));
 setInterval(reminderTick, 20000);
 reminderTick();
