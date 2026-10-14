@@ -148,7 +148,7 @@ public class MainActivity extends Activity {
 
         TextView headline = text("Show up. Get stronger.", 28, TEXT, true);
         topMargin(root, headline, 12);
-        TextView sub = text("3 sessions per week  ·  1 hour max", 13, SUBTLE, false);
+        TextView sub = text("3 strength days + 2 optional easy days · 45 min max", 13, SUBTLE, false);
         topMargin(root, sub, 6);
 
         LinearLayout nav = horizontal();
@@ -168,22 +168,27 @@ public class MainActivity extends Activity {
 
         WorkoutPlan.Session session = WorkoutPlan.forDate(selectedDate);
         LinearLayout hero = card();
-        hero.setBackground(background(session == WorkoutPlan.Session.REST ? SURFACE : ACCENT, 20));
-        if (session != WorkoutPlan.Session.REST) {
-            hero.addView(text("FULL BODY  /  " + session.name(), 12, BG, true));
+        hero.setBackground(background(WorkoutPlan.isStrength(session) ? ACCENT : SURFACE, 20));
+        if (WorkoutPlan.isStrength(session)) {
+            hero.addView(text("DORM FULL BODY  /  " + session.name(), 12, BG, true));
             TextView title = text("WORKOUT " + session.name(), 32, BG, true);
             topMargin(hero, title, 6);
-            topMargin(hero, text("Warm up 5–8 min · 2 sets per exercise", 13, BG, false), 4);
+            topMargin(hero, text("30–45 min · Warm up 5–8 min · No bench needed", 13, BG, false), 4);
+        } else if (session == WorkoutPlan.Session.ACTIVE) {
+            hero.addView(text("OPTIONAL MOVEMENT", 12, SUBTLE, true));
+            TextView title = text("Easy day", 27, TEXT, true);
+            topMargin(hero, title, 6);
+            topMargin(hero, text("Walk or move gently. No hard lifting today.", 13, SUBTLE, false), 6);
         } else {
             hero.addView(text("RECOVERY DAY", 12, SUBTLE, true));
             TextView title = text("Rest & recharge", 27, TEXT, true);
             topMargin(hero, title, 6);
-            topMargin(hero, text("A short walk or gentle mobility is plenty.", 13, SUBTLE, false), 6);
+            topMargin(hero, text("No workout required. Recover for the next session.", 13, SUBTLE, false), 6);
         }
         topMargin(root, hero, 10);
 
         if (session != WorkoutPlan.Session.REST) {
-            TextView workoutLabel = text("TODAY'S EXERCISES", 12, SUBTLE, true);
+            TextView workoutLabel = text(session == WorkoutPlan.Session.ACTIVE ? "OPTIONAL EASY MOVEMENT" : "TODAY'S EXERCISES", 12, SUBTLE, true);
             workoutLabel.setLetterSpacing(0.08f);
             topMargin(root, workoutLabel, 24);
             WorkoutPlan.Exercise[] exercises = WorkoutPlan.exercises(session);
@@ -223,7 +228,7 @@ public class MainActivity extends Activity {
                 row.addView(check);
                 topMargin(root, row, 8);
             }
-            TextView form = text("Start lighter. Keep 2–3 good reps in reserve. Ask a trainer to check your technique.",
+            TextView form = text("Use weights you can control, keep 2–3 reps in reserve, and secure adjustable plates with collars.",
                     12, SUBTLE, false);
             form.setLineSpacing(dp(3), 1);
             topMargin(root, form, 16);
