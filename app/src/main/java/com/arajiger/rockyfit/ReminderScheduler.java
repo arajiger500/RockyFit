@@ -65,7 +65,7 @@ public final class ReminderScheduler {
         LocalTime desired = LocalTime.of(prefs.getInt(HOUR, 17), prefs.getInt(MINUTE, 0));
         LocalDate day = now.toLocalDate();
         ZonedDateTime when = LocalDateTime.of(day, desired).atZone(zone);
-        if (!when.isAfter(now.plusMinutes(1)) || WorkoutPlan.forDate(day) == WorkoutPlan.Session.REST) {
+        if (!when.isAfter(now.plusMinutes(1)) || !WorkoutPlan.isStrength(WorkoutPlan.forDate(day))) {
             day = WorkoutPlan.nextWorkout(day);
             when = LocalDateTime.of(day, desired).atZone(zone);
         }
@@ -76,7 +76,7 @@ public final class ReminderScheduler {
     public static void showWorkoutNotification(Context context) {
         if (!prefs(context).getBoolean(ENABLED, true) || !hasPermission(context)) return;
         WorkoutPlan.Session session = WorkoutPlan.forDate(LocalDate.now());
-        if (session == WorkoutPlan.Session.REST) return;
+        if (!WorkoutPlan.isStrength(session)) return;
         initChannel(context);
         Intent openApp = new Intent(context, MainActivity.class);
         openApp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -85,7 +85,7 @@ public final class ReminderScheduler {
         Notification notification = new Notification.Builder(context, CHANNEL)
                 .setSmallIcon(com.arajiger.rockyfit.R.drawable.ic_barbell)
                 .setContentTitle("RockyFit · Workout " + session)
-                .setContentText("Your 1-hour full-body session is ready. Tap to see today's exercises.")
+                .setContentText("Your 30–45 min dorm workout is ready. Tap for exercises.")
                 .setContentIntent(action)
                 .setAutoCancel(true)
                 .build();
