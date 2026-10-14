@@ -1,5 +1,5 @@
 /* No network dependencies. Version is updated when the offline shell changes. */
-const CACHE = "rockyfit-offline-v1-20261014";
+const CACHE = "rockyfit-offline-v2-20261014";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -7,6 +7,8 @@ const PRECACHE = [
   "./app.js",
   "./plan.js",
   "./icon.svg",
+  "./icon-192.png",
+  "./icon-512.png",
   "./apple-touch-icon.png",
   "./manifest.webmanifest"
 ];
