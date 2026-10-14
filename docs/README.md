@@ -21,10 +21,15 @@ Open the website once while online and let the service worker install, then add 
 to the home screen or install it in your browser. Once cached, it works offline.
 Progress is stored in **localStorage on each device** and does not sync across devices.
 
-Workouts use device local time and begin Monday, 2026-10-19:
-- Week 1: Monday A, Thursday B, Saturday A
-- Week 2: Monday B, Thursday A, Saturday B
-- Repeat every two weeks
+Workouts use local device time:
+- **Monday A, Thursday B, Saturday C** — short dumbbell/bodyweight strength sessions (30–45 minutes)
+- **Tuesday / Friday** — optional walk and mobility, without hard lifting
+- **Wednesday / Sunday** — rest
+
+No bench, equipment machines, or gym membership. If your smallest dumbbell
+configuration is too heavy, use bodyweight versions or skip that weighted
+exercise instead of forcing it. Check that weights are secured to handles
+with working collars.
 
 ## Notifications
 
